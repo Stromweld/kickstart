@@ -16,8 +16,6 @@ It may take a long time for installation and before your system reboots into a u
 
 If DHCP is not available change `ip=dhcp` to something like `ip=<ip>::<gateway>:<netmask>::<interface>:none`
 
-Once installation is complete root login password is `Root1234!`
-
 ### Bash Script
 
 ```bash
@@ -63,3 +61,5 @@ grub2-reboot NetInstall
 ## Disclaimer
 
 I built this script based off of information gathered from <http://www.danpros.com/2016/02/how-to-install-centos-7-remotely-using-vnc> and <https://www.andrewklau.com/roll-your-own-centos-6-5-hvm-ami-in-less-than-15-minutes/> 
+
+For additional kickstart file options reference <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/installation_guide/sect-kickstart-syntax#sect-kickstart-commands>

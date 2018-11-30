@@ -17,7 +17,7 @@ repo --name=centos-sclo-rh --baseurl=http://mirror.centos.org/centos/7/sclo/x86_
 repo --name=centos-epel --baseurl=http://download.fedoraproject.org/pub/epel/7/x86_64/
 #repo --name=centos-spacewalk-client --baseurl=http://yum.spacewalkproject.org/2.6-client/RHEL/7/x86_64/
 
-rootpw  --iscrypted $6$o3ryIQwy$A8YWp768PAClU2zNuXe.Ji6KgTCbTJYqw7pq3SVSosIapP2vB7Pod56qKz0GA25uXOWjR7WMjo1F4UgVrGOmL/
+rootpw  Root1234!
 auth --enableshadow --passalgo=sha512
 # System keyboard
 keyboard us
@@ -44,13 +44,13 @@ bootloader --append="console=tty0" --location=mbr --timeout=1 --boot-drive=xvda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
-part pv.1015 --fstype="lvmpv" --ondisk=xvda --size=30219
-part /boot --fstype="xfs" --ondisk=xvda --size=500 --label=boot
+part /boot --fstype="xfs" --ondisk=sda --size=1024 --label=boot
+part pv.1015 --fstype="lvmpv" --ondisk=sda --size=29695 --grow
 volgroup vg_root --pesize=4096 pv.1015
 logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root
 logvol /tmp  --fstype="xfs" --size=4096 --name=lv_tmp --vgname=vg_root
 logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
-logvol /  --fstype="xfs" --size=19976 --name=lv_root --vgname=vg_root
+logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
 reboot
 
 %packages --ignoremissing --nobase
