@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #skipx
 #text
 install
@@ -46,7 +45,7 @@ bootloader --append="console=tty0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
-part pv.1015 --fstype="lvmpv" --ondisk=xvda --size=29695
+part pv.1015 --fstype="lvmpv" --ondisk=sda --size=29695
 part /boot --fstype="xfs" --ondisk=sda --size=1024 --label=boot
 volgroup vg_root --pesize=4096 pv.1015
 logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root
