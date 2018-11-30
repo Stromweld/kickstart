@@ -1,5 +1,5 @@
-#skipx
-#text
+skipx
+text
 install
 url --url=http://mirror.centos.org/centos/7/os/x86_64/
 # Firewall configuration
@@ -49,7 +49,7 @@ part pv.1015 --fstype="lvmpv" --ondisk=sda --size=29695
 part /boot --fstype="xfs" --ondisk=sda --size=1024 --label=boot
 volgroup vg_root --pesize=4096 pv.1015
 logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root
-#logvol /tmp  --fstype="xfs" --size=4096 --name=lv_tmp --vgname=vg_root
+logvol /tmp  --fstype="xfs" --size=4096 --name=lv_tmp --vgname=vg_root
 logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
 logvol /  --fstype="xfs" --size=19976 --name=lv_root --vgname=vg_root --grow
 shutdown
