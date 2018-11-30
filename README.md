@@ -33,7 +33,7 @@ echo "menuentry 'NetInstall' {\n" \
   "insmod part_msdos\n" \
   "insmod ext2\n" \
   "set root='hd0,msdos1'\n" \
-  "linux16 /vmlinuz-7 inst.vnc inst.vncpassword=12345678 inst.headless inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp\n" \
+  "linux16 /vmlinuz-7 inst.vnc inst.vncpassword=Root1234! inst.headless inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp\n" \
   "initrd16 /initrd-7.img" >> /etc/grub.d/40_custom
 
 # Make sure we only boot into our custom menu entry once
