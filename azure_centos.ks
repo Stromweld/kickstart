@@ -5,7 +5,7 @@ url --url=http://mirror.centos.org/centos/7/os/x86_64/
 # Firewall configuration
 firewall --disabled --ssh --service=ssh
 eula --agreed
-vnc --host=10.12.34.158 --port=5500
+#vnc --password=Root1234! --port=5500
 
 repo --name=centos-base --baseurl=http://mirror.centos.org/centos/7/os/x86_64/
 repo --name=centos-updates --baseurl=http://mirror.centos.org/centos/7/updates/x86_64/
@@ -33,7 +33,7 @@ firstboot --disable
 # System services
 services --disabled="avahi-daemon,iscsi,iscsid,firstboot,kdump" --enabled="network,sshd,rsyslog,tuned,acpid,chronyd"
 # System timezone
-timezone America/Chicago --isUtc --ntpservers=10.12.34.11,10.12.34.12
+timezone America/Chicago --isUtc
 # Network information
 network  --bootproto=dhcp --activate
 network  --hostname=localhost.localdomain
