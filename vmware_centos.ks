@@ -54,7 +54,7 @@ logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
 logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
 reboot
 
-%packages --ignoremissing --nobase
+%packages --ignoremissing --nobase --nocore
 @^minimal
 chrony
 cifs-utils
@@ -81,18 +81,17 @@ make
 kernel
 kernel-headers
 kernel-devel
-librdmacm-devel
-libmnl-devel
 tuned-utils
 tuned
 numad
-numactl-devel.x86_64
+numactl-devel
 tuna
 mlocate
 xfsprogs-devel
 
 -dracut-config-rescue
--NetworkManager
+-avahi*
+-Network*
 -aic94xx-firmware
 -alsa-firmware
 -alsa-lib
@@ -101,22 +100,7 @@ xfsprogs-devel
 -iprutils
 -linux-firmware
 -ivtv-firmware
--iwl100-firmware
--iwl1000-firmware
--iwl105-firmware
--iwl135-firmware
--iwl2000-firmware
--iwl2030-firmware
--iwl3160-firmware
--iwl3945-firmware
--iwl4965-firmware
--iwl5000-firmware
--iwl5150-firmware
--iwl6000-firmware
--iwl6000g2a-firmware
--iwl6000g2b-firmware
--iwl6050-firmware
--iwl7260-firmware
+-iwl*-firmware
 -libertas-sd8686-firmware
 -libertas-sd8787-firmware
 -libertas-usb8388-firmware
@@ -153,9 +137,6 @@ xfsprogs-devel
 
 # post stuff, here's where we do all the customisation
 %post
-
-# Disable the root account
-usermod root -p '!!'
 
 # Enable tmpfs /tmp mount
 systemctl enable tmp.mount
