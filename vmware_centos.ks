@@ -1,5 +1,5 @@
 skipx
-text
+#text
 install
 url --url=http://mirror.centos.org/centos/7/os/x86_64/
 # Firewall configuration
