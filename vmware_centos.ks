@@ -165,52 +165,9 @@ usermod root -p '!!'
 # Enable tmpfs /tmp mount
 systemctl enable tmp.mount
 
-# Import CentOS and OpenLogic public keys
-curl -so /etc/pki/rpm-gpg/OpenLogic-GPG-KEY https://raw.githubusercontent.com/szarkos/AzureBuildCentOS/master/config/OpenLogic-GPG-KEY
-rpm --import /etc/pki/rpm-gpg/OpenLogic-GPG-KEY
-
-# Set the kernel cmdline
-sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0"/g' /etc/default/grub
-
-# Enable grub serial console
-echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
-sed -i 's/^GRUB_TERMINAL_OUTPUT=".*"$/GRUB_TERMINAL="serial console"/g' /etc/default/grub
-
-# Blacklist the nouveau driver
-cat << EOF > /etc/modprobe.d/blacklist-nouveau.conf
-blacklist nouveau
-options nouveau modeset=0
-EOF
-
-# Install DPDK dependancies
-yum -y groupinstall "Infiniband Support"
-dracut --add-drivers "mlx4_en mlx4_ib mlx5_ib" -f
-
-# download dpdk
-wget https://fast.dpdk.org/rel/dpdk-18.05.1.tar.xz
-tar xzf dpdk-18.05.1.tar.xz
-cd dpdk*
-make config T=x86_64-native-linuxapp-gcc
-sed -ri 's,(MLX._PMD=)n,\1y,' build/.config
-make
-make install
-
-# Configure dpdk runtime environment
-echo 1024 | tee /sys/devices/system/node/node*/hugepages/hugepages-2048kB/nr_hugepages
-mkdir /mnt/huge
-mount -t hugetlbfs nodev /mnt/huge
-grep Huge /proc/meminfo
-modprobe -a ib_uverbs
-echo 'modprobe -a ib_uverbs' >> /etc/rc.local
-
-# Rebuild grub.cfg
-grub2-mkconfig -o /boot/grub2/grub.cfg
-
 # Enable SSH keepalive
 sed -i 's/^#\(ClientAliveInterval\).*$/\1 180/g' /etc/ssh/sshd_config
 
-# Ensure WALinuxAgent auto update enabled
-sed -i 's/# AutoUpdate.Enabled=n/AutoUpdate.Enabled=y/g' /etc/waagent.conf
 
 # Configure network
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -233,9 +190,6 @@ ln -s /dev/null /etc/udev/rules.d/80-net-name-slot.rules
 ln -s /dev/null /etc/udev/rules.d/75-persistent-net-generator.rules
 rm -f /lib/udev/rules.d/75-persistent-net-generator.rules /etc/udev/rules.d/70-persistent-net.rules 2>/dev/null
 
-# Disable NetworkManager handling of the SRIOV interfaces
-curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubusercontent.com/LIS/lis-next/master/hv-rhel7.x/hv/tools/68-azure-sriov-nm-unmanaged.rules
-
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
 yum -C -y remove linux-firmware avahi\* Network\*
@@ -255,7 +209,6 @@ rm -f /etc/systemd/system/default.target
 ln -s /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 echo .
 
-
 sed -i '/^#NAutoVTs=.*/ a\
 NAutoVTs=0' /etc/systemd/logind.conf
 
@@ -272,7 +225,6 @@ cat > /etc/hosts << EOF
 EOF
 echo .
 
-
 cat <<EOL > /etc/sysconfig/kernel
 # UPDATEDEFAULT specifies if new-kernel-pkg should make
 # new kernels the default
@@ -282,22 +234,11 @@ UPDATEDEFAULT=yes
 DEFAULTKERNEL=kernel
 EOL
 
-# XXX instance type markers - MUST match CentOS Infra expectation
-echo 'genclo' > /etc/yum/vars/infra
-
-# chance dhcp client retry/timeouts to resolve #6866
-cat  >> /etc/dhcp/dhclient.conf << EOF
-
-timeout 300;
-retry 60;
-EOF
-
 # Fix some first boot issues
 rpm --rebuilddb
 touch /.autorelabel
 
 # Fix hostname on boot
-
 sed -i -e 's/\(preserve_hostname:\).*/\1 False/' /etc/cloud/cloud.cfg
 sed -i '/HOSTNAME/d' /etc/sysconfig/network
 rm /etc/hostname
@@ -307,9 +248,5 @@ yum clean all
 rm -f /root/install.log
 rm -f /root/install.log.syslog
 find /var/log -type f -delete
-
-# Deprovision and prepare for Azure
-/usr/sbin/waagent -force -deprovision
-rm -f /etc/resolv.conf 2>/dev/null # workaround old agent bug
 
 %end
