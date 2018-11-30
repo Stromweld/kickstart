@@ -56,13 +56,9 @@ reboot
 
 %packages --ignoremissing --nobase
 @^minimal
-@base
-@console-internet
 chrony
 cifs-utils
 parted
-python-pyasn1
-sudo
 epel-release
 nano
 centos-release-scl
@@ -76,13 +72,11 @@ realmd
 oddjob
 sssd
 samba-common-tools
-cloud-init
-cloud-utils
-cloud-utils-growpart
 dkms
 gcc
 gcc-c++
 binutils
+openvm-tools
 make
 kernel
 kernel-headers
@@ -105,6 +99,7 @@ xfsprogs-devel
 -alsa-tools-firmware
 -biosdevname
 -iprutils
+-linux-firmware
 -ivtv-firmware
 -iwl100-firmware
 -iwl1000-firmware
@@ -209,9 +204,6 @@ rm -f /etc/systemd/system/default.target
 ln -s /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
 echo .
 
-sed -i '/^#NAutoVTs=.*/ a\
-NAutoVTs=0' /etc/systemd/logind.conf
-
 cat > /etc/sysconfig/network << EOF
 NETWORKING=yes
 NOZEROCONF=yes
@@ -239,7 +231,6 @@ rpm --rebuilddb
 touch /.autorelabel
 
 # Fix hostname on boot
-sed -i -e 's/\(preserve_hostname:\).*/\1 False/' /etc/cloud/cloud.cfg
 sed -i '/HOSTNAME/d' /etc/sysconfig/network
 rm /etc/hostname
 
