@@ -18,7 +18,7 @@ repo --name=centos-epel --baseurl=http://download.fedoraproject.org/pub/epel/7/x
 #repo --name=centos-spacewalk-client --baseurl=http://yum.spacewalkproject.org/2.6-client/RHEL/7/x86_64/
 repo --name="openlogic" --baseurl=http://olcentgbl.trafficmanager.net/openlogic/7/openlogic/x86_64/
 
-rootpw  --iscrypted $6$ilihUFZO06brTJkm$BzgKcXqlehkKF6dQSzE7I.Wf6vKmIZmB3N6NA7MV99DFNDVkibYvL8D9dH78YUeDipOODswj6RBzZJ0ox0rD60
+rootpw  --iscrypted $6$o3ryIQwy$A8YWp768PAClU2zNuXe.Ji6KgTCbTJYqw7pq3SVSosIapP2vB7Pod56qKz0GA25uXOWjR7WMjo1F4UgVrGOmL/
 auth --enableshadow --passalgo=sha512
 # System keyboard
 keyboard us

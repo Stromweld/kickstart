@@ -16,6 +16,8 @@ It may take a long time for installation and before your system reboots into a u
 
 If DHCP is not available change `ip=dhcp` to something like `ip=<ip>::<gateway>:<netmask>::<interface>:none`
 
+Once installation is complete root login password is `Root1234!`
+
 ### Bash Script
 
 ```bash
