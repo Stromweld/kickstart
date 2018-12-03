@@ -20,7 +20,7 @@ If DHCP is not available change `ip=dhcp` to something like `ip=<ip>::<gateway>:
 
 ```bash
 # Make sure wget is installed
-yum install wget
+yum install wget -y
 
 # Download linux installer ram images for booting into installer kernel
 cd /boot
@@ -28,13 +28,16 @@ wget http://mirror.centos.org/centos/7/os/x86_64/isolinux/vmlinuz -O vmlinuz-7
 wget http://mirror.centos.org/centos/7/os/x86_64/isolinux/initrd.img -O initrd-7.img
 
 # Create grub menu entry
-echo "menuentry 'NetInstall' {\n" \
-  "insmod gzio\n" \
-  "insmod part_msdos\n" \
-  "insmod ext2\n" \
-  "set root='hd0,msdos1'\n" \
-  "linux16 /vmlinuz-7 inst.vnc inst.vncpassword=Root1234! inst.headless inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp\n" \
-  "initrd16 /initrd-7.img" >> /etc/grub.d/40_custom
+cat >> /etc/grub.d/40_custom <<EOF
+menuentry 'NetInstall' {
+  insmod gzio
+  insmod part_msdos
+  insmod ext2
+  set root='hd0,msdos1'
+  linux16 /vmlinuz-7 inst.vnc inst.vncpassword=12345678 inst.headless inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp
+  initrd16 /initrd-7.img
+}
+EOF
 
 # Make sure we only boot into our custom menu entry once
 sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/g' /etc/default/grub
@@ -45,17 +48,18 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 # List available menu entry
 awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg
 
+# boot our new menu entry for the next reboot. 
+# We just need to use the menu entry title.
+grub2-reboot NetInstall
+
 # verify the default menu entry.
 # you can use grub2-set-default 'MenuEntry' 
 # to change the default boot
 grub2-editenv list
 
-# boot our new menu entry for the next reboot. 
-# We just need to use the menu entry title.
-grub2-reboot NetInstall
-
 # Reboot machine
 #reboot
+
 ```
 
 ## Disclaimer
