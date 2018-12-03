@@ -10,8 +10,8 @@ Deploy a CentOS 7 linux machine via cloud image or VM template and copy script b
 
 See this site for additional boot options and their descriptions <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/installation_guide/chap-anaconda-boot-options>
 
-Note that using vnc will cause the system to wait for a connection before continuing to load and run installer.
-Simply remove `inst.vnc` and `inst.headless` parts if you have access to the console or wish to have it fully automated.
+Note: that using vnc will cause the system to wait for a connection before continuing to load and run installer.
+Simply remove comment out vnc and text lines at the begining of the kickstart file if you have access to the console or wish to have it fully automated.
 It may take a long time for installation and before your system reboots into a usable state.
 
 If DHCP is not available change `ip=dhcp` to something like `ip=<ip>::<gateway>:<netmask>::<interface>:none`
@@ -34,7 +34,7 @@ menuentry 'NetInstall' {
   insmod part_msdos
   insmod ext2
   set root='hd0,msdos1'
-  linux16 /vmlinuz-7 inst.vnc inst.vncpassword=12345678 inst.headless inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp
+  linux16 /vmlinuz-7 inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp
   initrd16 /initrd-7.img
 }
 EOF
