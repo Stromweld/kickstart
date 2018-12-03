@@ -33,6 +33,7 @@ menuentry 'NetInstall' {
   insmod gzio
   insmod part_msdos
   insmod ext2
+  insmod xfs
   set root='hd0,msdos1'
   linux16 /vmlinuz-7 inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp
   initrd16 /initrd-7.img
