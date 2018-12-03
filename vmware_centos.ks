@@ -58,7 +58,6 @@ reboot
 @^minimal
 wget
 nfs-utils
-cifs-utils
 chrony
 cifs-utils
 parted

@@ -284,7 +284,7 @@ rm /etc/hostname
 #sed -i -e 's?^UUID=.* / .*?LABEL=/boot     /boot           xfs    defaults,relatime  0   0?' /etc/fstab
 
 # reorder console entries
-sed -i 's/console=tty0/console=tty0 console=ttyS0,115200n8/' /boot/grub2/grub.cfg
+sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0"/g' /etc/default/grub
 
 # Clean up
 yum clean all

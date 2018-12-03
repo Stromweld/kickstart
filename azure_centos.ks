@@ -54,10 +54,10 @@ logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
 logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
 reboot
 
-%packages --ignoremissing --nobase
+%packages --ignoremissing --nobase --nocore
 @^minimal
-@base
-@console-internet
+wget
+nfs-utils
 WALinuxAgent
 chrony
 cifs-utils
@@ -102,7 +102,8 @@ mlocate
 xfsprogs-devel
 
 -dracut-config-rescue
--NetworkManager
+-avahi*
+-Network*
 -aic94xx-firmware
 -alsa-firmware
 -alsa-lib
@@ -110,22 +111,7 @@ xfsprogs-devel
 -biosdevname
 -iprutils
 -ivtv-firmware
--iwl100-firmware
--iwl1000-firmware
--iwl105-firmware
--iwl135-firmware
--iwl2000-firmware
--iwl2030-firmware
--iwl3160-firmware
--iwl3945-firmware
--iwl4965-firmware
--iwl5000-firmware
--iwl5150-firmware
--iwl6000-firmware
--iwl6000g2a-firmware
--iwl6000g2b-firmware
--iwl6050-firmware
--iwl7260-firmware
+-iwl*-firmware
 -libertas-sd8686-firmware
 -libertas-sd8787-firmware
 -libertas-usb8388-firmware
@@ -174,7 +160,7 @@ curl -so /etc/pki/rpm-gpg/OpenLogic-GPG-KEY https://raw.githubusercontent.com/sz
 rpm --import /etc/pki/rpm-gpg/OpenLogic-GPG-KEY
 
 # Set the kernel cmdline
-sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0"/g' /etc/default/grub
+sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0 biosdevname=0"/g' /etc/default/grub
 
 # Enable grub serial console
 echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
