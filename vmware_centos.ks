@@ -1,5 +1,5 @@
 skipx
-#text
+text
 install
 url --url=http://mirror.centos.org/centos/7/os/x86_64/
 # Firewall configuration
@@ -56,6 +56,9 @@ reboot
 
 %packages --ignoremissing --nobase --nocore
 @^minimal
+wget
+nfs-utils
+cifs-utils
 chrony
 cifs-utils
 parted
@@ -76,7 +79,7 @@ dkms
 gcc
 gcc-c++
 binutils
-openvm-tools
+open-vm-tools
 make
 kernel
 kernel-headers
