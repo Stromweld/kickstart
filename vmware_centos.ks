@@ -217,6 +217,12 @@ touch /.autorelabel
 sed -i '/HOSTNAME/d' /etc/sysconfig/network
 rm /etc/hostname
 
+# reorder console entries
+sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0"/g' /etc/default/grub
+
+# Rebuild the grub.cfg
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
 # Clean up
 yum clean all
 rm -f /root/install.log
