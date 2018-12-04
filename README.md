@@ -58,8 +58,8 @@ grub2-reboot NetInstall
 # to change the default boot
 grub2-editenv list
 
-# Reboot machine
-#reboot
+# Reboot machine to start install
+reboot
 
 ```
 
