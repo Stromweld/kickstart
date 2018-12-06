@@ -92,7 +92,6 @@ mlocate
 xfsprogs-devel
 
 -dracut-config-rescue
--avahi*
 -Network*
 -aic94xx-firmware
 -alsa-firmware
