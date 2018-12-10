@@ -56,6 +56,14 @@ shutdown
 
 %packages --ignoremissing --nobase --nocore
 @^minimal
+realmd
+oddjob
+oddjob-mkhomedir
+sssd
+krb5-workstation
+samba-common-tools
+sssd-libwbclient
+sssd-tools
 wget
 nfs-utils
 chrony
@@ -69,11 +77,6 @@ dstat
 bash-completion
 bash-completion-extras
 htop
-oddjob-mkhomedir
-realmd
-oddjob
-sssd
-samba-common-tools
 dkms
 gcc
 gcc-c++
