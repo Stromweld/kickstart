@@ -54,7 +54,7 @@ logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
 logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
 shutdown
 
-%packages --ignoremissing --nobase --nocore
+%packages --ignoremissing --nobase
 @^minimal
 realmd
 oddjob
@@ -83,6 +83,7 @@ gcc-c++
 binutils
 open-vm-tools
 make
+net-tools
 kernel
 kernel-headers
 kernel-devel
