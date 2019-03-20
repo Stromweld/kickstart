@@ -38,15 +38,14 @@ timezone America/Chicago --isUtc
 network  --bootproto=dhcp --activate
 network  --hostname=localhost.localdomain
 
-ignoredisk --only-use=sda,sdb
+ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
 bootloader --append="console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
-clearpart --all --drives=sda,sdb --initlabel
+clearpart --all --initlabel
 # Disk partitioning information
 part /boot --fstype="xfs" --ondisk=sda --size=1024 --label=boot
-part /mnt/resource --fstype="xfs" --ondisk=sdb --size=1024 --grow --fsoptions="nobarrier,noatime,nofail"
 part pv.1015 --fstype="lvmpv" --ondisk=sda --size=29695 --grow
 volgroup vg_root --pesize=4096 pv.1015
 logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root --fsoptions="nobarrier,nofail"
