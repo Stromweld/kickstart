@@ -7,10 +7,10 @@ firewall --disabled --ssh --service=ssh
 eula --agreed
 #vnc --password=Root1234! --port=5500
 
-repo --name=centos-base --baseurl=http://mirror.centos.org/centos/7/os/x86_64/
-repo --name=centos-updates --baseurl=http://mirror.centos.org/centos/7/updates/x86_64/
-repo --name=centos-extras --baseurl=http://mirror.centos.org/centos/7/extras/x86_64/
-#repo --name=centos-centosplus --baseurl=http://mirror.centos.org/centos/7/centosplus/x86_64/
+repo --name=centos-base --baseurl=http://olcentgbl.trafficmanager.net/centos/7/os/x86_64/
+repo --name=centos-updates --baseurl=http://olcentgbl.trafficmanager.net/centos/7/updates/x86_64/
+repo --name=centos-extras --baseurl=http://olcentgbl.trafficmanager.net/centos/7/extras/x86_64/
+#repo --name=centos-centosplus --baseurl=http://olcentgbl.trafficmanager.net/centos/7/centosplus/x86_64/
 repo --name=centos-fasttrack --baseurl=http://mirror.centos.org/centos/7/fasttrack/x86_64/
 repo --name=centos-sclo --baseurl=http://mirror.centos.org/centos/7/sclo/x86_64/sclo/
 repo --name=centos-sclo-rh --baseurl=http://mirror.centos.org/centos/7/sclo/x86_64/rh/
@@ -41,23 +41,25 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
-bootloader --append="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
-clearpart --all --initlabel
+clearpart --all --drives=sda,sdb --initlabel
 # Disk partitioning information
 part /boot --fstype="xfs" --ondisk=sda --size=1024 --label=boot
+part /mnt/resource --fstype="xfs" --ondisk=sdb --size=1024 --grow --fsoptions="nobarrier,noatime,nofail"
 part pv.1015 --fstype="lvmpv" --ondisk=sda --size=29695 --grow
 volgroup vg_root --pesize=4096 pv.1015
-logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root
-logvol /tmp  --fstype="xfs" --size=4096 --name=lv_tmp --vgname=vg_root
-logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
-logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
+logvol /var/log  --fstype="xfs" --size=2048 --name=lv_varlog --vgname=vg_root --fsoptions="nobarrier,nofail"
+logvol /tmp  --fstype="xfs" --size=4096 --name=lv_tmp --vgname=vg_root --fsoptions="nobarrier,nofail"
+logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow --fsoptions="nobarrier,nofail"
 reboot
 
 %packages --ignoremissing --nobase
 @^minimal
 WALinuxAgent
 hypervkvpd
+microsoft-hyper-v
+udftools
 realmd
 oddjob
 oddjob-mkhomedir
@@ -98,7 +100,6 @@ mlocate
 xfsprogs-devel
 
 -dracut-config-rescue
--Network*
 -aic94xx-firmware
 -alsa-firmware
 -alsa-lib
@@ -148,6 +149,15 @@ xfsprogs-devel
 # Enable tmpfs /tmp mount
 systemctl enable tmp.mount
 
+# Add openlogic repo
+cat << EOF > /etc/yum.repos.d/openlogic.repo
+[openlogic]
+name=CentOS-$releasever - openlogic packages for $basearch
+baseurl=http://olcentgbl.trafficmanager.net/openlogic/$releasever/openlogic/$basearch/
+enabled=1
+gpgcheck=0
+EOF
+
 # Import CentOS and OpenLogic public keys
 curl -so /etc/pki/rpm-gpg/OpenLogic-GPG-KEY https://raw.githubusercontent.com/szarkos/AzureBuildCentOS/master/config/OpenLogic-GPG-KEY
 rpm --import /etc/pki/rpm-gpg/OpenLogic-GPG-KEY
@@ -168,6 +178,10 @@ EOF
 # Install DPDK dependancies
 yum -y groupinstall "Infiniband Support"
 dracut --add-drivers "mlx4_en mlx4_ib mlx5_ib" -f
+
+# Add Hyper-V drivers to dracut
+echo 'add_drivers+=”hv_vmbus hv_netvsc hv_storvsc”' >> /etc/dracut.conf
+dracut -f -v
 
 # download dpdk
 wget https://fast.dpdk.org/rel/dpdk-18.05.1.tar.xz
@@ -192,8 +206,12 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 # Enable SSH keepalive
 sed -i 's/^#\(ClientAliveInterval\).*$/\1 180/g' /etc/ssh/sshd_config
 
-# Ensure WALinuxAgent auto update enabled
+# Ensure WALinuxAgent auto update enabled and use resource drive for swap
 sed -i 's/# AutoUpdate.Enabled=n/AutoUpdate.Enabled=y/g' /etc/waagent.conf
+sed -i 's/# ResourceDisk.Filesystem=ext4/ResourceDisk.Filesystem=xfs/g' /etc/waagent.conf
+sed -i 's/# ResourceDisk.EnableSwap=n/ResourceDisk.EnableSwap=y/g' /etc/waagent.conf
+sed -i 's/# ResourceDisk.SwapSizeMB=0/ResourceDisk.SwapSizeMB=4096/g' /etc/waagent.conf
+sed -i 's/# ResourceDisk.MountOptions=None/ResourceDisk.MountOptions=nobarrier,noatime,nofail/g' /etc/waagent.conf
 
 # Configure network
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -205,7 +223,6 @@ USERCTL=no
 PEERDNS=yes
 IPV6INIT=no
 NM_CONTROLLED=no
-PERSISTENT_DHCLIENT=yes
 EOF
 
 # For cloud images, 'eth0' _is_ the predictable device name, since
@@ -221,7 +238,7 @@ curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubu
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
-yum -C -y remove linux-firmware Network\*
+yum -C -y remove linux-firmware
 # Remove firewalld; it is required to be present for install/image building.
 # but we dont ship it in cloud
 yum -C -y remove firewalld --setopt="clean_requirements_on_remove=1"
@@ -283,6 +300,9 @@ touch /.autorelabel
 sed -i '/HOSTNAME/d' /etc/sysconfig/network
 rm /etc/hostname
 
+# Start WALinuxAgent on boot up
+systemctl enable waagent
+
 # Clean up
 yum clean all
 rm -f /root/install.log
@@ -291,6 +311,6 @@ find /var/log -type f -delete
 
 # Deprovision and prepare for Azure
 #/usr/sbin/waagent -force -deprovision
-#rm -f /etc/resolv.conf 2>/dev/null # workaround old agent bug
+#export HISTSIZE=0
 
 %end
