@@ -149,7 +149,6 @@ systemctl enable tmp.mount
 # Enable SSH keepalive
 sed -i 's/^#\(ClientAliveInterval\).*$/\1 180/g' /etc/ssh/sshd_config
 
-
 # Configure network
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
 DEVICE=eth0
@@ -173,7 +172,7 @@ rm -f /lib/udev/rules.d/75-persistent-net-generator.rules /etc/udev/rules.d/70-p
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
-yum -C -y remove linux-firmware avahi\* Network\*
+yum -C -y remove linux-firmware Network\*
 # Remove firewalld; it is required to be present for install/image building.
 # but we dont ship it in cloud
 yum -C -y remove firewalld --setopt="clean_requirements_on_remove=1"

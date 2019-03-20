@@ -41,7 +41,7 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
-bootloader --append="console=tty0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
@@ -54,17 +54,23 @@ logvol swap  --fstype="swap" --size=4096 --name=lv_swap --vgname=vg_root
 logvol /  --fstype="xfs" --size=15360 --name=lv_root --vgname=vg_root --grow
 reboot
 
-%packages --ignoremissing --nobase --nocore
+%packages --ignoremissing --nobase
 @^minimal
+WALinuxAgent
+hypervkvpd
+realmd
+oddjob
+oddjob-mkhomedir
+sssd
+krb5-workstation
+samba-common-tools
+sssd-libwbclient
+sssd-tools
 wget
 nfs-utils
-WALinuxAgent
 chrony
 cifs-utils
-hypervkvpd
 parted
-python-pyasn1
-sudo
 epel-release
 nano
 centos-release-scl
@@ -73,36 +79,25 @@ dstat
 bash-completion
 bash-completion-extras
 htop
-oddjob-mkhomedir
-realmd
-oddjob
-sssd
-samba-common-tools
-cloud-init
-cloud-utils
-cloud-utils-growpart
 dkms
 gcc
 gcc-c++
 binutils
-microsoft-hyper-v
-kmod-microsoft-hyper-v
+open-vm-tools
 make
+net-tools
 kernel
 kernel-headers
 kernel-devel
-librdmacm-devel
-libmnl-devel
 tuned-utils
 tuned
 numad
-numactl-devel.x86_64
+numactl-devel
 tuna
 mlocate
 xfsprogs-devel
 
 -dracut-config-rescue
--avahi*
 -Network*
 -aic94xx-firmware
 -alsa-firmware
@@ -110,6 +105,7 @@ xfsprogs-devel
 -alsa-tools-firmware
 -biosdevname
 -iprutils
+-linux-firmware
 -ivtv-firmware
 -iwl*-firmware
 -libertas-sd8686-firmware
@@ -148,9 +144,6 @@ xfsprogs-devel
 
 # post stuff, here's where we do all the customisation
 %post
-
-# Disable the root account
-usermod root -p '!!'
 
 # Enable tmpfs /tmp mount
 systemctl enable tmp.mount
@@ -228,7 +221,7 @@ curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubu
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
-yum -C -y remove linux-firmware avahi\* Network\*
+yum -C -y remove linux-firmware Network\*
 # Remove firewalld; it is required to be present for install/image building.
 # but we dont ship it in cloud
 yum -C -y remove firewalld --setopt="clean_requirements_on_remove=1"
@@ -287,8 +280,6 @@ rpm --rebuilddb
 touch /.autorelabel
 
 # Fix hostname on boot
-
-sed -i -e 's/\(preserve_hostname:\).*/\1 False/' /etc/cloud/cloud.cfg
 sed -i '/HOSTNAME/d' /etc/sysconfig/network
 rm /etc/hostname
 
@@ -299,7 +290,7 @@ rm -f /root/install.log.syslog
 find /var/log -type f -delete
 
 # Deprovision and prepare for Azure
-/usr/sbin/waagent -force -deprovision
-rm -f /etc/resolv.conf 2>/dev/null # workaround old agent bug
+#/usr/sbin/waagent -force -deprovision
+#rm -f /etc/resolv.conf 2>/dev/null # workaround old agent bug
 
 %end

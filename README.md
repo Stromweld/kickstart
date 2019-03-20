@@ -19,6 +19,7 @@ If DHCP is not available change `ip=dhcp` to something like `ip=<ip>::<gateway>:
 ### Bash Script
 
 ```bash
+#!/bin/bash
 # Make sure wget is installed
 yum install wget -y
 
@@ -35,7 +36,7 @@ menuentry 'NetInstall' {
   insmod ext2
   insmod xfs
   set root='hd0,msdos1'
-  linux16 /vmlinuz-7 inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/vmware_centos.ks ip=dhcp
+  linux16 /vmlinuz-7 inst.ks=https://raw.githubusercontent.com/Stromweld/kickstart/master/azure_centos.ks ip=dhcp
   initrd16 /initrd-7.img
 }
 EOF
