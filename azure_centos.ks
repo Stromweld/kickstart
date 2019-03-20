@@ -41,7 +41,7 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
-bootloader --append="console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
@@ -167,6 +167,9 @@ sed -i 's/^\(GRUB_CMDLINE_LINUX\)=".*"$/\1="console=tty1 console=ttyS0,115200n8 
 # Enable grub serial console
 echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
 sed -i 's/^GRUB_TERMINAL_OUTPUT=".*"$/GRUB_TERMINAL="serial console"/g' /etc/default/grub
+
+# Disable recovery
+echo 'GRUB_DISABLE_RECOVERY="true"' >> /etc/default/grub
 
 # Blacklist the nouveau driver
 cat << EOF > /etc/modprobe.d/blacklist-nouveau.conf
