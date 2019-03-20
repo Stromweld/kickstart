@@ -56,7 +56,6 @@ reboot
 %packages --ignoremissing --nobase
 @^minimal
 WALinuxAgent
-hypervkvpd
 microsoft-hyper-v
 udftools
 realmd
@@ -240,6 +239,7 @@ curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubu
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
+yum install -y hyperv-daemons
 yum -C -y remove linux-firmware
 # Remove firewalld; it is required to be present for install/image building.
 # but we dont ship it in cloud
