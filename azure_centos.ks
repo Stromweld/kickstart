@@ -41,7 +41,7 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda,sdb
 zerombr
 # System bootloader configuration
-bootloader --append="console=ttyS0 earlyprintk=ttyS0 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --drives=sda,sdb --initlabel
 # Disk partitioning information
