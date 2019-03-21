@@ -41,7 +41,7 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
-bootloader --append="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=tty0 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
@@ -56,7 +56,7 @@ reboot
 %packages --ignoremissing --nobase
 @^minimal
 WALinuxAgent
-microsoft-hyper-v
+hyperv-daemons
 udftools
 realmd
 oddjob
@@ -239,11 +239,8 @@ curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubu
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
-yum install -y hyperv-daemons
+yum install -y microsoft-hyper-v
 yum -C -y remove linux-firmware
-# Remove firewalld; it is required to be present for install/image building.
-# but we dont ship it in cloud
-yum -C -y remove firewalld --setopt="clean_requirements_on_remove=1"
 yum clean all
 
 # make sure firstboot doesn't start
