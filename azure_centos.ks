@@ -41,7 +41,7 @@ network  --hostname=localhost.localdomain
 ignoredisk --only-use=sda
 zerombr
 # System bootloader configuration
-bootloader --append="console=tty0 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+bootloader --append="console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 # Partition clearing information
 clearpart --all --initlabel
 # Disk partitioning information
@@ -93,6 +93,8 @@ tuned-utils
 tuned
 numad
 numactl-devel
+librdmacm-devel
+libmnl-devel
 tuna
 mlocate
 xfsprogs-devel
@@ -150,8 +152,8 @@ systemctl enable tmp.mount
 # Add openlogic repo
 cat << EOF > /etc/yum.repos.d/openlogic.repo
 [openlogic]
-name=CentOS-$releasever - openlogic packages for $basearch
-baseurl=http://olcentgbl.trafficmanager.net/openlogic/$releasever/openlogic/$basearch/
+name=CentOS-7 - openlogic packages for x86_64
+baseurl=http://olcentgbl.trafficmanager.net/openlogic/7/openlogic/x86_64/
 enabled=1
 gpgcheck=0
 EOF
@@ -178,15 +180,15 @@ EOF
 
 # Install DPDK dependancies
 yum -y groupinstall "Infiniband Support"
-dracut --add-drivers "mlx4_en mlx4_ib mlx5_ib" -f
+yum install -y microsoft-hyper-v
+dracut --add-drivers "mlx4_en mlx4_ib mlx5_ib" -f -v
 
 # Add Hyper-V drivers to dracut
-echo 'add_drivers+=”hv_vmbus hv_netvsc hv_storvsc”' >> /etc/dracut.conf
-dracut -f -v
+dracut --add-drivers "hv_vmbus hv_netvsc hv_storvsc" -f -v
 
 # download dpdk
-wget https://fast.dpdk.org/rel/dpdk-18.05.1.tar.xz
-tar xzf dpdk-18.05.1.tar.xz
+wget https://fast.dpdk.org/rel/dpdk-19.02.tar.xz
+tar xzf dpdk-19.02.tar.xz
 cd dpdk*
 make config T=x86_64-native-linuxapp-gcc
 sed -ri 's,(MLX._PMD=)n,\1y,' build/.config
@@ -208,11 +210,11 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 sed -i 's/^#\(ClientAliveInterval\).*$/\1 180/g' /etc/ssh/sshd_config
 
 # Ensure WALinuxAgent auto update enabled and use resource drive for swap
-sed -i 's/# AutoUpdate.Enabled=n/AutoUpdate.Enabled=y/g' /etc/waagent.conf
-sed -i 's/# ResourceDisk.Filesystem=ext4/ResourceDisk.Filesystem=xfs/g' /etc/waagent.conf
-sed -i 's/# ResourceDisk.EnableSwap=n/ResourceDisk.EnableSwap=y/g' /etc/waagent.conf
-sed -i 's/# ResourceDisk.SwapSizeMB=0/ResourceDisk.SwapSizeMB=4096/g' /etc/waagent.conf
-sed -i 's/# ResourceDisk.MountOptions=None/ResourceDisk.MountOptions=nobarrier,noatime,nofail/g' /etc/waagent.conf
+sed -i 's/.*AutoUpdate.Enabled=.*$/AutoUpdate.Enabled=y/g' /etc/waagent.conf
+sed -i 's/.*ResourceDisk.Filesystem=.*$/ResourceDisk.Filesystem=xfs/g' /etc/waagent.conf
+sed -i 's/.*ResourceDisk.EnableSwap=.*$/ResourceDisk.EnableSwap=y/g' /etc/waagent.conf
+sed -i 's/.*ResourceDisk.SwapSizeMB=.*$/ResourceDisk.SwapSizeMB=4096/g' /etc/waagent.conf
+sed -i 's/,*ResourceDisk.MountOptions=.*$/ResourceDisk.MountOptions=nobarrier,noatime,nofail/g' /etc/waagent.conf
 
 # Configure network
 cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -239,7 +241,6 @@ curl -so /etc/udev/rules.d/68-azure-sriov-nm-unmanaged.rules https://raw.githubu
 
 # Modify yum
 echo "http_caching=packages" >> /etc/yum.conf
-yum install -y microsoft-hyper-v
 yum -C -y remove linux-firmware
 yum clean all
 
