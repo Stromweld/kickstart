@@ -55,6 +55,7 @@ reboot
 
 %packages --ignoremissing --nobase
 @^minimal
+ncdu
 WALinuxAgent
 hyperv-daemons
 udftools

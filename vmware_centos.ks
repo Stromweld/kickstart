@@ -56,6 +56,7 @@ shutdown
 
 %packages --ignoremissing --nobase
 @^minimal
+ncdu
 realmd
 oddjob
 oddjob-mkhomedir
